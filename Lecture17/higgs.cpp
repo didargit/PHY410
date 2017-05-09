@@ -1,25 +1,35 @@
-#include <cmath>
-#include <cstdlib>
-#include <iostream>
-using namespace std;
-
-#include "nonlin.hpp"
-using namespace cpt;
-
-double V(double x)
-{
-    return -pow(x, 2.0)/ 2 + pow(x, 4.0)/4;
-}
-
-int main()
-{
-    double acc = 1e-6;
-    double guess1 = 0.1, guess2 = -0.1;
-    double x_min;
-    double V_min = find_minimum< double (*)(double)> (guess1, guess2, V, acc, x_min);
-    cout << "V(x) = " << V_min << " at x = " << x_min << endl;
-
-    double x_max;
-    double V_max = find_maximum< double (*)(double)> (guess1, guess2, V, acc, x_max);
-    cout << "V(x) = " << V_max << " at x = " << x_max << endl;
-}
+ #include <cmath>
+ #include <istream>
+ #include <iomanip>
+ using namespace std;
+ 
+ #include "nonlin.hpp"
+ using namespace cpt;
+ 
+ const double pi = 4* atan(1.0);
+ 
+ double func(Matrix<double,1>& point) {
+     double x = point[0]; 
+     double y = point[1];
+     return .25*(x*x*x*x+y*y*y*y)+.5*x*x*y*y-.5*(x*x-y*y);
+     }
+ 
+ void dfunc(Matrix<double,1>& point, Matrix<double,1>& dpoint) {
+     double x = point[0];
+     double y = point[1];
+     dpoint[0] = x*x*x+x*y*y-x;
+     dpoint[1] = y*y*y+x*x*y-y;
+     return;
+ }
+ 
+ int main()
+ {
+     Matrix<double,1> point(2);
+     cin >> point[0] >> point[1];
+     double gtol = 0.0001;
+     double f_min;
+     int iterations;
+     minimize_BFGS(point, gtol, iterations, f_min, func, dfunc);
+     cout << " func(" << point[0] << ", " << point[1] << ") = " << f_min
+          << " in " << iterations << " iterations" << endl;
+ }
